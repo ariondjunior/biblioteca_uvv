@@ -32,9 +32,7 @@ class BibliotecaHTTPRequestHandler(BaseHTTPRequestHandler):
             body = json.dumps(data, ensure_ascii=False).encode("utf-8")
 
         self.send_response(status)
-        self.send_header(
-            "Content-Type",
-            "application/json; charset=utf-8"
+        self.send_header("Content-Type", "application/json; charset=utf-8"
         )
 
         if headers:
@@ -63,10 +61,7 @@ class BibliotecaHTTPRequestHandler(BaseHTTPRequestHandler):
             return None
 
     def _find_book(self, book_id):
-        return next(
-            (book for book in BOOKS if book["id"] == book_id),
-            None
-        )
+        return next((book for book in BOOKS if book["id"] == book_id), None)
 
     def _read_json(self):
         content_length = self.headers.get("Content-Length")
@@ -83,6 +78,7 @@ class BibliotecaHTTPRequestHandler(BaseHTTPRequestHandler):
 
             data = self.rfile.read(length)
             return json.loads(data)
+
         except (ValueError, json.JSONDecodeError):
             self._send_json(400, {"error": "Invalid JSON"})
             return None
@@ -96,9 +92,7 @@ class BibliotecaHTTPRequestHandler(BaseHTTPRequestHandler):
 
         for field in required_fields:
             if field not in book_data:
-                self._send_json(
-                    400,
-                    {"error": f"Field '{field}' is required"}
+                self._send_json(400, {"error": f"Field '{field}' is required"}
                 )
                 return False
 
@@ -114,9 +108,7 @@ class BibliotecaHTTPRequestHandler(BaseHTTPRequestHandler):
             self._send_json(400, {"error": "Field 'description' must be a string"})
             return False
 
-        if (
-            not isinstance(book_data["year"], int)
-            or isinstance(book_data["year"], bool)
+        if (not isinstance(book_data["year"], int) or isinstance(book_data["year"], bool)
         ):
             self._send_json(400, {"error": "Field 'year' must be an integer"})
             return False
@@ -182,19 +174,12 @@ class BibliotecaHTTPRequestHandler(BaseHTTPRequestHandler):
         if not self._validate_book_data(new_book):
             return
 
-        next_id = max(
-            (book["id"] for book in BOOKS),
-            default=0
-        ) + 1
+        next_id = max((book["id"] for book in BOOKS), default=0) + 1
 
         new_book["id"] = next_id
         BOOKS.append(new_book)
 
-        self._send_json(
-            201,
-            new_book,
-            headers={"Location": f"/api/books/{next_id}"}
-        )
+        self._send_json(201, new_book, headers={"Location": f"/api/books/{next_id}"})
 
     def do_PUT(self):
         path = self._get_path()
